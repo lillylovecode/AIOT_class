@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>WebSocket 控制燈</title>
+  <!-- 引入 Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+
+<nav class="navbar navbar-dark bg-dark">
+  <div class="container-fluid">
+    <span class="navbar-brand mb-0 h1">WebSocket 連接樹莓派</span>
+  </div>
+</nav>
+
+<div class="container mt-4">
+  <div class="row">
+    <div class="col-md-4">
+      <h3>紅燈</h3>
+      <div class="form-check form-switch">
+        <input class="form-check-input" type="checkbox" id="redSwitch">
+        <label class="form-check-label" for="redSwitch">紅燈開關</label>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <h3>綠燈</h3>
+      <div class="form-check form-switch">
+        <input class="form-check-input" type="checkbox" id="greenSwitch">
+        <label class="form-check-label" for="greenSwitch">綠燈開關</label>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <h3>黃燈</h3>
+      <div class="form-check form-switch">
+        <input class="form-check-input" type="checkbox" id="yellowSwitch">
+        <label class="form-check-label" for="yellowSwitch">黃燈開關</label>
+      </div>
+    </div>
+  </div>
+
+  <div class="row mt-4">
+    <div class="col-md-4">
+        <h3>溫溼度</h3>
+      <button type="button" class="btn btn-success" id="getTemperature">取得溫溼度</button>
+    </div>
+    <div class="col-md-4">
+        <h3>時間</h3>
+      <button type="button" class="btn btn-primary" id="getCurrentTime">取得現在時間</button>
+    </div>
+  </div>
+</div>
+
+<!-- 顯示伺服器回應的訊息 -->
+<div class="container mt-4">
+  <div class="row">
+    <div class="col-md-12">
+      <h3>伺服器回應</h3>
+      <pre id="response"></pre>
+    </div>
+  </div>
+</div>
+
+<!-- 引入 Bootstrap JS 和自訂的 JavaScript -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  // JavaScript 代碼
+  document.addEventListener('DOMContentLoaded', function() {
+
+    // 設定伺服器 IP 位址和埠號
+    const server_ip = '192.168.0.70';  // 將此處替換為伺服器的 IP 位址
+    const server_port = 8567;           // 將此處替換為伺服器的埠號
+
+    // WebSocket 連接
+    const socket = new WebSocket(`ws://${server_ip}:${server_port}`); // 修改成你的 WebSocket 伺服器地址
+
+    // 嘗試連線到伺服器
+    socket.addEventListener('open', (event) => {
+        document.getElementById('response').innerHTML += '\n已連線到伺服器';
+        console.log('已連線到伺服器');
+    });
+
+    // 函數用於發送訊息給 WebSocket 伺服器
+    function sendMessage(message) {
+      if (socket.readyState === WebSocket.OPEN) {
+        socket.send(message);
+      } else {
+        console.error('WebSocket 連接尚未建立。');
+      }
+    }
+
+    // 監聽紅燈開關
+    const redSwitch = document.getElementById('redSwitch');
+    redSwitch.addEventListener('change', function() {
+      const message = this.checked ? 'ron' : 'roff';
+      sendMessage(message);
+    });
+
+    // 監聽綠燈開關
+    const greenSwitch = document.getElementById('greenSwitch');
+    greenSwitch.addEventListener('change', function() {
+      const message = this.checked ? 'gon' : 'goff';
+      sendMessage(message);
+    });
+
+    // 監聽黃燈開關
+    const yellowSwitch = document.getElementById('yellowSwitch');
+    yellowSwitch.addEventListener('change', function() {
+      const message = this.checked ? 'yon' : 'yoff';
+      sendMessage(message);
+    });
+
+    // 監聽取得溫溼度按鈕
+    const getTemperatureBtn = document.getElementById('getTemperature');
+    getTemperatureBtn.addEventListener('click', function() {
+      sendMessage('getth'); // 發送取得溫溼度的訊息給伺服器
+    });
+
+    // 監聽取得現在時間按鈕
+    const getCurrentTimeBtn = document.getElementById('getCurrentTime');
+    getCurrentTimeBtn.addEventListener('click', function() {
+      sendMessage('gettime'); // 發送取得現在時間的訊息給伺服器
+    });
+
+    // 監聽 WebSocket 伺服器的回應
+    socket.addEventListener('message', function(event) {
+      const response = event.data;
+      console.log('從伺服器接收到的資料： ' + response);
+      document.getElementById('response').innerHTML = response;
+    });
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,63 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+    <title>連線到樹梅派</title>
+</head>
+<body>
+    <h1>網頁連線到樹梅派</h1>
+    <form method="post" action="">
+        <button type="submit" name="action" value="ron">開紅燈</button>
+        <button type="submit" name="action" value="rof">關紅燈</button>
+        <button type="submit" name="action" value="yon">開黃燈</button>
+        <button type="submit" name="action" value="yof">關黃燈</button>
+        <button type="submit" name="action" value="gon">開綠燈</button>
+        <button type="submit" name="action" value="gof">關綠燈</button>
+        <button type="submit" name="action" value="getth">當前溫溼度</button>
+		<button type="submit" name="action" value="gettime">當前時間</button>
+    </form>
+</body>
+</html>
+
+<script>
+// 設定伺服器 IP 位址和埠號
+const server_ip = '192.168.100.7';  // 將此處替換為伺服器的 IP 位址
+const server_port = 8888;  // 將此處替換為伺服器的埠號
+
+if (action) {
+    const action = action;
+
+    // 建立 socket 連線
+    const socket = new WebSocket(`ws://${server_ip}:${server_port}`);
+
+    // 嘗試連線到伺服器
+    socket.addEventListener('open', (event) => {
+        document.getElementById('response').innerHTML += '\n已連線到伺服器';
+        console.log('已連線到伺服器');
+    });
+
+    // 接收來自伺服器的回應
+    socket.addEventListener('message', (event) => {
+        // 顯示來自伺服器的回應
+        document.getElementById('response').innerHTML += `\n從伺服器接收到的資料: ${event.data}`;
+        console.log(`從伺服器接收到的資料: ${event.data}`);
+    });
+
+    // 要傳送的資料
+    const data_to_send = action;
+
+    // 將資料傳送到伺服器
+    socket.send(data_to_send);
+    document.getElementById('response').innerHTML = `\n已傳送資料到伺服器: ${data_to_send}`;
+    console.log(`已傳送資料到伺服器: ${data_to_send}`);
+
+    // 關閉 socket 連線
+    socket.addEventListener('close', (event) => {
+        console.log('已關閉 socket 連線');
+    });
+}
+</script>

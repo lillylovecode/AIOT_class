@@ -1,0 +1,1 @@
+scp C:\Users\ZenBook\Desktop\coding\python\AIOT\socket\socketserver_new.py pi@192.168.0.70:/home/pi
